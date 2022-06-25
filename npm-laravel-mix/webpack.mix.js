@@ -5,11 +5,11 @@ const glob = require('glob');
 
 // 定義変数群
 const subDir = './';
-const jsPath = `${subDir}src/js/`;
-const sassPath = `${subDir}src/sass/`;
+const jsPath = `${subDir}assets/js/`;
+const sassPath = `${subDir}assets/sass/`;
 const searchJs = '/js';
 const searchSass = '/sass';
-const publicPath = `${subDir}assets/`;
+const publicPath = `${subDir}dist/`;
 
 // 連結されたコンパイルパス
 var compileJsPath = `${jsPath}**/*.js`;
@@ -66,8 +66,8 @@ glob.sync(compileSassPath,
 mix.webpackConfig({
     resolve: {
         alias: {
-            stylesheets: path.resolve(__dirname, 'src/sass/'),
-            '@': path.resolve(__dirname, 'src/js/')
+            stylesheets: path.resolve(__dirname, 'assets/sass/'),
+            '@': path.resolve(__dirname, 'assets/js/')
         }
     },
     plugins: [
