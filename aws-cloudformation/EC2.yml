@@ -1,0 +1,141 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create EC2 Instance
+Parameters:
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+    - t1.micro
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    ConstraintDescription: must be a valid EC2 instance type
+  KeyName:
+    Description : Name of an existing EC2 KeyPair.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription : Can contain only ASCII characters.
+  Location:
+    Description: IP address range that can be used to SSH,Http,Https to the EC2 instances
+    Type: String
+    MinLength: "9"
+    MaxLength: "18"
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+
+####################################
+# Resources
+####################################
+Description: Create EC2 Instance
+Resources:
+  # Role for EC2
+  RoleForEC2:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      RoleName: !Sub "${AWS::StackName}-Role"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore # SSM ロール
+  RoleProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - !Ref RoleForEC2
+
+  EC2PublicSubnet1A:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: "ami-0b7546e839d7ace12" # Amazon Linux 2 Kernel 5.10 AMI
+      InstanceType: !Ref InstanceType
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: 8
+      IamInstanceProfile: !Ref RoleProfile
+      KeyName: !Ref KeyName
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true # パブリック IP の自動割り当て
+          DeviceIndex: "0"
+          SubnetId: !ImportValue MyVPC-PublicSubnet1A # サブネット
+          GroupSet: # セキュリティグループ
+           - !Ref EC2SecurityGroup
+      Tags:
+      - Key: Name
+        Value: web-server-public-1a
+
+  # EC2PublicSubnet1C:
+  #   Type: AWS::EC2::Instance
+  #   Properties: 
+  #     ImageId: "ami-0b7546e839d7ace12" # Amazon Linux 2 Kernel 5.10 AMI
+  #     InstanceType: !Ref InstanceType
+  #     BlockDeviceMappings:
+  #       - DeviceName: /dev/xvda
+  #         Ebs:
+  #           VolumeType: gp2
+  #           VolumeSize: 8
+  #     IamInstanceProfile: !Ref RoleProfile
+  #     KeyName: !Ref KeyName
+  #     NetworkInterfaces:
+  #       - AssociatePublicIpAddress: true # パブリック IP の自動割り当て
+  #         DeviceIndex: "0"
+  #         SubnetId: !ImportValue MyVPC-PublicSubnet1C # サブネット
+  #         GroupSet: # セキュリティグループ
+  #          - !Ref EC2SecurityGroup
+  #     Tags:
+  #     - Key: Name
+  #       Value: web-server-public-1c
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: web-server-test # セキュリティグループ名
+      GroupDescription: ssh,http,https
+      VpcId: !ImportValue MyVPC-VPCID
+      SecurityGroupIngress:
+        -
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref Location
+        -
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref Location
+        -
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref Location
+      Tags:
+      - Key: Name
+        Value: web-server-test
+
+  # TestSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupName: Base-Tokyo # セキュリティグループ名
+  #     GroupDescription: all
+  #     VpcId: vpc-05d96b8df98fd887f
+  #     SecurityGroupIngress:
+  #       -
+  #         IpProtocol: -1 # 全てのプロトコルを許可
+  #         CidrIp: 10.0.0.0/32 # 許可したい IP を記載
+  #         Description: Base-Tokyo
+  #     Tags:
+  #     - Key: Name
+  #       Value: Base-Tokyo
