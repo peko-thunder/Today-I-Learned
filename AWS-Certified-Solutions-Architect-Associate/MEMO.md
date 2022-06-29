@@ -16,7 +16,8 @@ EFS自体を削除後に自動バックアップが動作していないか確�
 
 # Create
 
-* Congnito でのユーザー認証
-* 静的サイト + Lambda
-* Cloudformation
+* Cloudformationでリソースの管理
+* S3 + CloudFront + Lambda でのサーバーレス
+* Congnitoでのログイン機能
+* CloudFrontの署名付きCookieを利用してユーザーページへ遷移
 
