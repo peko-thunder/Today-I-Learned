@@ -91,3 +91,4 @@ EFS自体を削除後に自動バックアップが動作していないか確�
 * Congnitoでのログイン機能
 * CloudFrontの署名付きCookieを利用してユーザーページへ遷移
 * CloudFrontのビューワーリクエスト関数などを設定
+* AWS SAMでサーバレスの構築
