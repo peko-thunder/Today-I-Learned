@@ -72,8 +72,8 @@
     "typescript": "^4.7.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "../lint-staged-around",
-    "pre-push": "../test-around"
+    "pre-commit": "./lint-staged-around",
+    "pre-push": "./test-around"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
