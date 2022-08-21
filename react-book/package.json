@@ -22,7 +22,7 @@
     "eject": "react-scripts eject",
     "fix": "npm run -s format && npm run -s lint:fix",
     "format": "prettier --write --loglevel=warn \"{public,src}/**/*.{js,jsx,ts,tsx,html,gql,graphql,json}\"",
-    "lint": "npm run -s lint:style && npm run -s lint:es",
+    "lint": "npm run -s lint:style || npm run -s lint:es",
     "lint:fix": "npm run -s lint:style:fix || npm run -s lint:es:fix",
     "lint:es": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:es:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -72,8 +72,8 @@
     "typescript": "^4.7.4"
   },
   "simple-git-hooks": {
-    "pre-commit": ". ./lint-staged-around",
-    "pre-push": ". ./test-around"
+    "pre-commit": "./lint-staged-around",
+    "pre-push": "./test-around"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
